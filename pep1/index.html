@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VM Peptides — Quality Peptides for Research</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --teal-dark:  #0d4a4c;
+      --teal:       #1a8a8c;
+      --teal-mid:   #2aa8aa;
+      --teal-light: #5cc8ca;
+      --teal-pale:  #d4f1f1;
+      --cream:      #f5f2ee;
+      --cream-dark: #ece8e2;
+      --text-dark:  #111b1b;
+      --text-mid:   #3a5050;
+      --text-light: #6b8888;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--cream);
+      color: var(--text-dark);
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3 { font-family: 'Playfair Display', serif; }
+
+    /* ── Age Gate ── */
+    #age-gate {
+      position: fixed; inset: 0; z-index: 9999;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(10, 28, 28, 0.92);
+      backdrop-filter: blur(8px);
+    }
+    #age-gate.hidden { display: none; }
+
+    .age-card {
+      background: var(--cream);
+      border-radius: 20px;
+      padding: 56px 48px;
+      max-width: 480px; width: 90%;
+      text-align: center;
+      box-shadow:
+        0 4px 6px rgba(13,74,76,0.08),
+        0 20px 60px rgba(13,74,76,0.25),
+        0 40px 100px rgba(0,0,0,0.3);
+    }
+
+    .age-card img { width: 140px; margin: 0 auto 28px; }
+
+    .age-card h2 {
+      font-size: 1.75rem;
+      color: var(--teal-dark);
+      margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
+
+    .age-card p {
+      color: var(--text-mid);
+      font-size: 0.9rem;
+      line-height: 1.7;
+      margin-bottom: 32px;
+    }
+
+    .age-btns { display: flex; gap: 12px; justify-content: center; }
+
+    .btn-confirm {
+      background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+      color: #fff;
+      border: none;
+      padding: 14px 32px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: opacity 0.2s, transform 0.15s;
+      box-shadow: 0 4px 16px rgba(26,138,140,0.35);
+    }
+    .btn-confirm:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-confirm:active { transform: translateY(0); }
+
+    .btn-deny {
+      background: transparent;
+      color: var(--text-mid);
+      border: 1.5px solid var(--cream-dark);
+      padding: 14px 32px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-deny:hover { border-color: var(--text-light); color: var(--text-dark); }
+
+    .age-legal {
+      margin-top: 20px;
+      font-size: 0.75rem;
+      color: var(--text-light);
+      line-height: 1.6;
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(245,242,238,0.88);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(26,138,140,0.12);
+      padding: 0 40px;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 72px;
+    }
+
+    .nav-logo img { height: 48px; width: auto; }
+
+    .nav-links {
+      display: flex; gap: 32px; align-items: center;
+      list-style: none; margin: 0; padding: 0;
+    }
+
+    .nav-links a {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-mid);
+      text-decoration: none;
+      letter-spacing: 0.01em;
+      transition: color 0.2s;
+      position: relative;
+    }
+    .nav-links a::after {
+      content: '';
+      position: absolute; bottom: -4px; left: 0; right: 0;
+      height: 2px;
+      background: var(--teal);
+      transform: scaleX(0); transform-origin: left;
+      transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .nav-links a:hover { color: var(--teal-dark); }
+    .nav-links a:hover::after { transform: scaleX(1); }
+
+    .nav-cta {
+      background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+      color: #fff !important;
+      padding: 10px 22px;
+      border-radius: 8px;
+      font-weight: 600 !important;
+      transition: opacity 0.2s, transform 0.15s !important;
+      box-shadow: 0 3px 12px rgba(26,138,140,0.3);
+    }
+    .nav-cta:hover { opacity: 0.9; transform: translateY(-1px); }
+    .nav-cta::after { display: none !important; }
+
+    /* ── Hero ── */
+    .hero {
+      position: relative;
+      min-height: 92vh;
+      display: flex; align-items: center;
+      overflow: hidden;
+      padding: 80px 40px;
+    }
+
+    .hero-bg {
+      position: absolute; inset: 0; z-index: 0;
+      background:
+        radial-gradient(ellipse 70% 60% at 70% 50%, rgba(26,138,140,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 80% at 20% 20%, rgba(92,200,202,0.08) 0%, transparent 50%),
+        radial-gradient(ellipse 40% 40% at 80% 80%, rgba(13,74,76,0.06) 0%, transparent 60%);
+    }
+
+    .hero-grain {
+      position: absolute; inset: 0; z-index: 1; opacity: 0.04;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      background-size: 256px 256px;
+    }
+
+    .hero-content {
+      position: relative; z-index: 2;
+      max-width: 640px;
+    }
+
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(26,138,140,0.1);
+      border: 1px solid rgba(26,138,140,0.2);
+      color: var(--teal);
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 6px 16px;
+      border-radius: 100px;
+      margin-bottom: 24px;
+    }
+    .hero-badge span { width: 6px; height: 6px; border-radius: 50%; background: var(--teal-light); }
+
+    .hero h1 {
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      color: var(--teal-dark);
+      margin-bottom: 24px;
+    }
+
+    .hero h1 em {
+      font-style: normal;
+      background: linear-gradient(135deg, var(--teal), var(--teal-light));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      font-size: 1.1rem;
+      line-height: 1.75;
+      color: var(--text-mid);
+      margin-bottom: 40px;
+      max-width: 520px;
+    }
+
+    .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+      color: #fff;
+      padding: 16px 36px;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-block;
+      box-shadow:
+        0 2px 4px rgba(13,74,76,0.15),
+        0 8px 24px rgba(26,138,140,0.3);
+      transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+    }
+    .btn-primary:hover {
+      opacity: 0.92;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(13,74,76,0.2), 0 12px 32px rgba(26,138,140,0.35);
+    }
+    .btn-primary:active { transform: translateY(0); }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--teal-dark);
+      padding: 16px 36px;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-block;
+      border: 1.5px solid rgba(26,138,140,0.35);
+      transition: background 0.2s, border-color 0.2s, transform 0.15s;
+    }
+    .btn-secondary:hover {
+      background: rgba(26,138,140,0.06);
+      border-color: var(--teal);
+      transform: translateY(-2px);
+    }
+    .btn-secondary:active { transform: translateY(0); }
+
+    .hero-visual {
+      position: absolute; right: 5%; top: 50%; transform: translateY(-50%);
+      z-index: 2;
+      width: 400px; height: 400px;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 40% 35%, rgba(92,200,202,0.18) 0%, rgba(26,138,140,0.06) 50%, transparent 70%),
+        rgba(26,138,140,0.04);
+      border: 1px solid rgba(26,138,140,0.12);
+      box-shadow:
+        0 0 0 24px rgba(26,138,140,0.04),
+        0 0 0 48px rgba(26,138,140,0.02),
+        0 24px 64px rgba(26,138,140,0.15);
+      display: flex; align-items: center; justify-content: center;
+      animation: floatLogo 6s ease-in-out infinite;
+    }
+
+    .hero-visual img {
+      width: 85%;
+      mix-blend-mode: multiply;
+    }
+
+    @keyframes floatLogo {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-16px); }
+    }
+
+    /* ── Stats bar ── */
+    .stats-bar {
+      background: var(--teal-dark);
+      padding: 32px 40px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+    }
+
+    .stat {
+      text-align: center;
+      border-right: 1px solid rgba(255,255,255,0.1);
+      padding: 8px 0;
+    }
+    .stat:last-child { border-right: none; }
+
+    .stat-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--teal-light);
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .stat-label {
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.55);
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    /* ── Section common ── */
+    section { padding: 96px 40px; }
+
+    .section-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-size: clamp(1.75rem, 3vw, 2.75rem);
+      letter-spacing: -0.025em;
+      color: var(--teal-dark);
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+
+    .section-sub {
+      font-size: 1rem;
+      color: var(--text-mid);
+      line-height: 1.7;
+      max-width: 540px;
+    }
+
+    /* ── Research Disclaimer Banner ── */
+    .disclaimer-banner {
+      background: linear-gradient(135deg, #fef3c7, #fde68a);
+      border: 1px solid #f59e0b;
+      border-radius: 12px;
+      padding: 18px 24px;
+      display: flex; align-items: flex-start; gap: 14px;
+      margin: 0 40px;
+    }
+
+    .disclaimer-icon {
+      font-size: 1.25rem; flex-shrink: 0; margin-top: 1px;
+    }
+
+    .disclaimer-text {
+      font-size: 0.85rem;
+      color: #78350f;
+      line-height: 1.65;
+    }
+
+    .disclaimer-text strong { font-weight: 700; }
+
+    /* ── Products ── */
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 28px;
+      margin-top: 56px;
+    }
+
+    .product-card {
+      background: #fff;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid rgba(26,138,140,0.08);
+      box-shadow:
+        0 1px 2px rgba(13,74,76,0.04),
+        0 8px 24px rgba(13,74,76,0.07);
+      transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.25s;
+      cursor: pointer;
+    }
+    .product-card:hover {
+      transform: translateY(-6px);
+      box-shadow:
+        0 2px 4px rgba(13,74,76,0.06),
+        0 16px 40px rgba(13,74,76,0.14);
+    }
+    .product-card:focus-visible {
+      outline: 3px solid var(--teal);
+      outline-offset: 3px;
+    }
+
+    .product-img {
+      position: relative;
+      height: 200px;
+      overflow: hidden;
+    }
+
+    .product-img img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform 0.4s;
+      mix-blend-mode: multiply;
+    }
+    .product-card:hover .product-img img { transform: scale(1.04); }
+
+    .product-img-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(13,74,76,0.55) 0%, transparent 50%);
+    }
+
+    .product-img-color {
+      position: absolute; inset: 0;
+      background: rgba(26,138,140,0.15);
+      mix-blend-mode: multiply;
+    }
+
+    .product-badge {
+      position: absolute; top: 12px; right: 12px;
+      background: var(--teal);
+      color: #fff;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 100px;
+    }
+
+    .product-body { padding: 20px 22px 24px; }
+
+    .product-category {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: 6px;
+    }
+
+    .product-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      color: var(--teal-dark);
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+
+    .product-desc {
+      font-size: 0.83rem;
+      color: var(--text-light);
+      line-height: 1.65;
+      margin-bottom: 16px;
+    }
+
+    .product-footer {
+      display: flex; align-items: center; justify-content: space-between;
+    }
+
+    .product-price {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--teal-dark);
+    }
+
+    .product-cta {
+      background: rgba(26,138,140,0.1);
+      color: var(--teal);
+      border: none;
+      padding: 9px 18px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: background 0.2s, color 0.2s, transform 0.15s;
+    }
+    .product-cta:hover { background: var(--teal); color: #fff; transform: translateY(-1px); }
+    .product-cta:active { transform: translateY(0); }
+    .product-cta:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+
+    /* ── Why Us ── */
+    .why-section {
+      background: linear-gradient(160deg, var(--teal-dark) 0%, #0a3535 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .why-section::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 60% 80% at 90% 10%, rgba(92,200,202,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 50% at 0% 90%, rgba(26,138,140,0.15) 0%, transparent 60%);
+    }
+
+    .why-grid {
+      position: relative; z-index: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: center;
+    }
+
+    .why-left .section-label { color: var(--teal-light); }
+    .why-left .section-title { color: #fff; }
+    .why-left .section-sub { color: rgba(255,255,255,0.6); max-width: 460px; }
+
+    .features-list { margin-top: 40px; display: flex; flex-direction: column; gap: 24px; }
+
+    .feature-item {
+      display: flex; gap: 18px; align-items: flex-start;
+    }
+
+    .feature-icon {
+      width: 44px; height: 44px; flex-shrink: 0;
+      background: rgba(92,200,202,0.12);
+      border: 1px solid rgba(92,200,202,0.2);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+    }
+
+    .feature-text h4 {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .feature-text p {
+      font-size: 0.83rem;
+      color: rgba(255,255,255,0.5);
+      line-height: 1.65;
+    }
+
+    .cert-cards {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+    }
+
+    .cert-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      padding: 28px 24px;
+      text-align: center;
+      backdrop-filter: blur(4px);
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .cert-card:hover { background: rgba(255,255,255,0.08); border-color: rgba(92,200,202,0.25); }
+
+    .cert-icon { font-size: 2rem; margin-bottom: 12px; }
+
+    .cert-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .cert-desc {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.45);
+      line-height: 1.5;
+    }
+
+    /* ── Process ── */
+    .process-section { background: var(--cream-dark); }
+
+    .process-steps {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 32px;
+      margin-top: 56px;
+      position: relative;
+    }
+
+    .process-steps::before {
+      content: '';
+      position: absolute;
+      top: 28px; left: 10%; right: 10%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--teal-pale), transparent);
+    }
+
+    .process-step {
+      text-align: center;
+      position: relative; z-index: 1;
+    }
+
+    .step-num {
+      width: 56px; height: 56px;
+      background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+      color: #fff;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin: 0 auto 20px;
+      box-shadow: 0 4px 16px rgba(26,138,140,0.3);
+    }
+
+    .step-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--teal-dark);
+      margin-bottom: 8px;
+    }
+
+    .step-desc {
+      font-size: 0.82rem;
+      color: var(--text-light);
+      line-height: 1.65;
+    }
+
+    /* ── Legal ── */
+    .legal-section {
+      background: #fff;
+      padding: 72px 40px;
+    }
+
+    .legal-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      margin-top: 48px;
+    }
+
+    .legal-box {
+      border-radius: 14px;
+      padding: 28px 30px;
+      border: 1px solid;
+    }
+
+    .legal-box.warning {
+      background: #fff7ed;
+      border-color: #fed7aa;
+    }
+
+    .legal-box.info {
+      background: #f0f9ff;
+      border-color: #bae6fd;
+    }
+
+    .legal-box.caution {
+      background: #fef2f2;
+      border-color: #fecaca;
+    }
+
+    .legal-box.note {
+      background: #f0fdf4;
+      border-color: #bbf7d0;
+    }
+
+    .legal-box-header {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .legal-box-icon { font-size: 1.2rem; }
+
+    .legal-box-title {
+      font-size: 0.88rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    .legal-box.warning .legal-box-title { color: #c2410c; }
+    .legal-box.info .legal-box-title { color: #0369a1; }
+    .legal-box.caution .legal-box-title { color: #dc2626; }
+    .legal-box.note .legal-box-title { color: #15803d; }
+
+    .legal-box p {
+      font-size: 0.82rem;
+      line-height: 1.7;
+    }
+
+    .legal-box.warning p { color: #7c2d12; }
+    .legal-box.info p { color: #075985; }
+    .legal-box.caution p { color: #7f1d1d; }
+    .legal-box.note p { color: #14532d; }
+
+    /* ── Footer ── */
+    footer {
+      background: var(--text-dark);
+      padding: 64px 40px 32px;
+    }
+
+    .footer-top {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 48px;
+      padding-bottom: 48px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .footer-logo-wrap {
+      display: inline-block;
+      background: rgba(245,242,238,0.08);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 10px 16px;
+      margin-bottom: 16px;
+    }
+    .footer-brand img { height: 44px; width: auto; display: block; }
+
+    .footer-brand p {
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.4);
+      line-height: 1.7;
+      max-width: 280px;
+    }
+
+    .footer-col h5 {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 16px;
+    }
+
+    .footer-col ul { list-style: none; margin: 0; padding: 0; }
+    .footer-col ul li { margin-bottom: 10px; }
+    .footer-col ul li a {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.35);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-col ul li a:hover { color: var(--teal-light); }
+
+    .footer-bottom {
+      padding-top: 28px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .footer-legal-text {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.22);
+      line-height: 1.7;
+      max-width: 600px;
+    }
+
+    .footer-copy {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.22);
+      white-space: nowrap;
+    }
+
+    /* ── Deny Screen ── */
+    #deny-screen {
+      position: fixed; inset: 0; z-index: 9999;
+      display: none;
+      align-items: center; justify-content: center;
+      background: rgba(10, 28, 28, 0.97);
+      text-align: center;
+      padding: 40px;
+    }
+    #deny-screen.show { display: flex; }
+
+    .deny-content h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.75rem;
+      color: rgba(255,255,255,0.9);
+      margin-bottom: 12px;
+    }
+
+    .deny-content p {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.45);
+      line-height: 1.7;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════
+     AGE GATE
+═══════════════════════════════════════════════ -->
+<div id="age-gate">
+  <div class="age-card">
+    <img src="brand-assets/VM-logo.png" alt="VM Peptides" />
+    <h2>Age Verification Required</h2>
+    <p>
+      This website contains products intended exclusively for adults aged
+      <strong>18 years and older</strong>. All products are sold strictly for
+      <strong>research purposes only</strong> and are not for human consumption.
+    </p>
+    <div class="age-btns">
+      <button class="btn-confirm" onclick="enterSite()">I am 18 or older</button>
+      <button class="btn-deny" onclick="denySite()">I am under 18</button>
+    </div>
+    <p class="age-legal">
+      By entering this site you confirm you are 18+ and agree to our
+      <a href="#legal" style="color:var(--teal);">Terms of Service</a> and
+      <a href="#legal" style="color:var(--teal);">Research Use Policy</a>.
+      These products are not intended to diagnose, treat, cure, or prevent any disease.
+    </p>
+  </div>
+</div>
+
+<!-- Deny Screen -->
+<div id="deny-screen">
+  <div class="deny-content">
+    <h2>Access Restricted</h2>
+    <p>You must be 18 years of age or older to access this website.<br />Please close this page.</p>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════
+     NAV
+═══════════════════════════════════════════════ -->
+<nav>
+  <a href="#" class="nav-logo"><img src="brand-assets/VM-logo.png" alt="VM Peptides" /></a>
+  <ul class="nav-links">
+    <li><a href="#products">Products</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#process">Our Process</a></li>
+    <li><a href="#legal">Legal</a></li>
+    <li><a href="#products" class="nav-cta">Shop Now</a></li>
+  </ul>
+</nav>
+
+
+<!-- ═══════════════════════════════════════════════
+     HERO
+═══════════════════════════════════════════════ -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grain"></div>
+
+  <div class="hero-content">
+    <div class="hero-badge">
+      <span></span>
+      Research-Grade Quality
+    </div>
+    <h1>
+      Precision Peptides<br />
+      for <em>Advanced Research</em>
+    </h1>
+    <p>
+      VM Peptides delivers pharmaceutical-grade synthesized peptides for
+      in-vitro and laboratory research. Every batch independently verified
+      for purity, potency, and consistency.
+    </p>
+    <div class="hero-actions">
+      <a href="#products" class="btn-primary">Explore Products</a>
+      <a href="#process" class="btn-secondary">Our Process</a>
+    </div>
+  </div>
+
+  <div class="hero-visual">
+    <img src="brand-assets/VM-logo.png" alt="VM Peptides" />
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════
+     DISCLAIMER BANNER
+═══════════════════════════════════════════════ -->
+<div class="disclaimer-banner">
+  <span class="disclaimer-icon">⚠️</span>
+  <p class="disclaimer-text">
+    <strong>Research Use Only.</strong> All products sold by VM Peptides are intended solely for
+    in-vitro laboratory research and are not for human or animal consumption. These products have
+    not been evaluated by the FDA and are not intended to diagnose, treat, cure, or prevent any
+    disease or condition. For use by qualified researchers only.
+  </p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════
+     PRODUCTS
+═══════════════════════════════════════════════ -->
+<section id="products">
+  <div style="max-width:1200px; margin:0 auto;">
+    <p class="section-label">Our Catalog</p>
+    <h2 class="section-title">Research-Grade Peptides</h2>
+    <p class="section-sub">
+      Each peptide is synthesized using SPPS methodology, verified by HPLC and
+      mass spectrometry, and shipped with a full certificate of analysis.
+    </p>
+
+    <div class="products-grid">
+
+      <!-- Card 1 -->
+      <div class="product-card" tabindex="0">
+        <div class="product-img">
+          <img src="https://placehold.co/400x300/d4f1f1/0d4a4c?text=BPC-157" alt="BPC-157" />
+          <div class="product-img-overlay"></div>
+          <div class="product-img-color"></div>
+          <span class="product-badge">Bestseller</span>
+        </div>
+        <div class="product-body">
+          <p class="product-category">Tissue Research</p>
+          <h3 class="product-name">BPC-157</h3>
+          <p class="product-desc">Body protection compound with a 15 amino-acid sequence. Research-grade, lyophilized. &gt;99% purity by HPLC.</p>
+          <div class="product-footer">
+            <span class="product-price">From $49.00</span>
+            <button class="product-cta">View Details</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="product-card" tabindex="0">
+        <div class="product-img">
+          <img src="https://placehold.co/400x300/c8e8e8/0d4a4c?text=TB-500" alt="TB-500" />
+          <div class="product-img-overlay"></div>
+          <div class="product-img-color"></div>
+          <span class="product-badge">High Purity</span>
+        </div>
+        <div class="product-body">
+          <p class="product-category">Cell Signaling</p>
+          <h3 class="product-name">TB-500 (Thymosin β4)</h3>
+          <p class="product-desc">Synthetic version of the naturally occurring Thymosin Beta 4. Lyophilized powder, 5mg vials. COA included.</p>
+          <div class="product-footer">
+            <span class="product-price">From $59.00</span>
+            <button class="product-cta">View Details</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="product-card" tabindex="0">
+        <div class="product-img">
+          <img src="https://placehold.co/400x300/b8dfdf/0d4a4c?text=CJC-1295" alt="CJC-1295" />
+          <div class="product-img-overlay"></div>
+          <div class="product-img-color"></div>
+        </div>
+        <div class="product-body">
+          <p class="product-category">GH Secretagogue</p>
+          <h3 class="product-name">CJC-1295</h3>
+          <p class="product-desc">A 30-amino acid synthetic analogue of GHRH. Available with and without DAC. Minimum 98% purity.</p>
+          <div class="product-footer">
+            <span class="product-price">From $44.00</span>
+            <button class="product-cta">View Details</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="product-card" tabindex="0">
+        <div class="product-img">
+          <img src="https://placehold.co/400x300/d4f1f1/0d4a4c?text=Ipamorelin" alt="Ipamorelin" />
+          <div class="product-img-overlay"></div>
+          <div class="product-img-color"></div>
+          <span class="product-badge">New</span>
+        </div>
+        <div class="product-body">
+          <p class="product-category">GH Secretagogue</p>
+          <h3 class="product-name">Ipamorelin</h3>
+          <p class="product-desc">Selective GH secretagogue and GH receptor agonist. Pentapeptide structure. Lyophilized, 2mg and 5mg vials.</p>
+          <div class="product-footer">
+            <span class="product-price">From $38.00</span>
+            <button class="product-cta">View Details</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 5 -->
+      <div class="product-card" tabindex="0">
+        <div class="product-img">
+          <img src="https://placehold.co/400x300/c8e8e8/0d4a4c?text=Selank" alt="Selank" />
+          <div class="product-img-overlay"></div>
+          <div class="product-img-color"></div>
+        </div>
+        <div class="product-body">
+          <p class="product-category">Nootropic Research</p>
+          <h3 class="product-name">Selank</h3>
+          <p class="product-desc">Heptapeptide analogue of the immunomodulatory peptide tuftsin. Nasal solution or lyophilized powder.</p>
+          <div class="product-footer">
+            <span class="product-price">From $42.00</span>
+            <button class="product-cta">View Details</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 6 -->
+      <div class="product-card" tabindex="0">
+        <div class="product-img">
+          <img src="https://placehold.co/400x300/b8dfdf/0d4a4c?text=Epithalon" alt="Epithalon" />
+          <div class="product-img-overlay"></div>
+          <div class="product-img-color"></div>
+          <span class="product-badge">Popular</span>
+        </div>
+        <div class="product-body">
+          <p class="product-category">Epigenetic Research</p>
+          <h3 class="product-name">Epithalon</h3>
+          <p class="product-desc">Tetrapeptide (Ala-Glu-Asp-Gly) studied for telomerase modulation. Research use only. &gt;99% purity.</p>
+          <div class="product-footer">
+            <span class="product-price">From $55.00</span>
+            <button class="product-cta">View Details</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════
+     WHY VM PEPTIDES
+═══════════════════════════════════════════════ -->
+<section class="why-section" id="about">
+  <div style="max-width:1200px; margin:0 auto;" class="why-grid">
+    <div class="why-left">
+      <p class="section-label">Why VM Peptides</p>
+      <h2 class="section-title">Built for the Demands of Serious Research</h2>
+      <p class="section-sub">
+        Every compound we offer is synthesized, tested, and handled with the same rigor
+        demanded by leading research institutions.
+      </p>
+
+      <div class="features-list">
+        <div class="feature-item">
+          <div class="feature-icon">🧬</div>
+          <div class="feature-text">
+            <h4>Third-Party Verified Purity</h4>
+            <p>Independent HPLC and mass spectrometry analysis on every production batch — results shipped with your order.</p>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">🧊</div>
+          <div class="feature-text">
+            <h4>Cold-Chain Shipping</h4>
+            <p>Temperature-controlled packaging ensures peptide integrity from synthesis to your lab door.</p>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">📋</div>
+          <div class="feature-text">
+            <h4>Full Certificate of Analysis</h4>
+            <p>Every order includes a downloadable COA — sequence verified, purity confirmed, lot-traceable.</p>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">🔬</div>
+          <div class="feature-text">
+            <h4>Research-Grade Synthesis</h4>
+            <p>Solid-phase peptide synthesis (SPPS) with pharmaceutical-grade reagents. No compromises.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="why-right">
+      <div class="cert-cards">
+        <div class="cert-card">
+          <div class="cert-icon">🏆</div>
+          <p class="cert-title">&gt;99% Purity</p>
+          <p class="cert-desc">HPLC-verified on every batch</p>
+        </div>
+        <div class="cert-card">
+          <div class="cert-icon">⚗️</div>
+          <p class="cert-title">GMP Synthesized</p>
+          <p class="cert-desc">Pharmaceutical-grade SPPS process</p>
+        </div>
+        <div class="cert-card">
+          <div class="cert-icon">📦</div>
+          <p class="cert-title">Cold-Chain</p>
+          <p class="cert-desc">2–8°C during transit</p>
+        </div>
+        <div class="cert-card">
+          <div class="cert-icon">📄</div>
+          <p class="cert-title">COA Included</p>
+          <p class="cert-desc">Lot-traceable documentation</p>
+        </div>
+        <div class="cert-card">
+          <div class="cert-icon">🚚</div>
+          <p class="cert-title">Fast Dispatch</p>
+          <p class="cert-desc">Ships within 24–48 hours</p>
+        </div>
+        <div class="cert-card">
+          <div class="cert-icon">🔒</div>
+          <p class="cert-title">Secure & Discreet</p>
+          <p class="cert-desc">Confidential packaging</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════
+     PROCESS
+═══════════════════════════════════════════════ -->
+<section class="process-section" id="process">
+  <div style="max-width:1100px; margin:0 auto; text-align:center;">
+    <p class="section-label">How It Works</p>
+    <h2 class="section-title">From Synthesis to Your Lab</h2>
+    <p class="section-sub" style="margin:0 auto;">
+      A rigorous four-stage process ensures every compound meets the standards
+      demanded by serious research environments.
+    </p>
+
+    <div class="process-steps">
+      <div class="process-step">
+        <div class="step-num">1</div>
+        <p class="step-title">Synthesis</p>
+        <p class="step-desc">Solid-phase peptide synthesis using pharmaceutical-grade Fmoc chemistry and protected amino acids.</p>
+      </div>
+      <div class="process-step">
+        <div class="step-num">2</div>
+        <p class="step-title">Purification</p>
+        <p class="step-desc">Reverse-phase HPLC purification to eliminate impurities, truncated sequences, and deletion products.</p>
+      </div>
+      <div class="process-step">
+        <div class="step-num">3</div>
+        <p class="step-title">Verification</p>
+        <p class="step-desc">Independent third-party mass spectrometry and HPLC analysis confirms identity and purity (&gt;99%).</p>
+      </div>
+      <div class="process-step">
+        <div class="step-num">4</div>
+        <p class="step-title">Dispatch</p>
+        <p class="step-desc">Lyophilized, nitrogen-sealed, and shipped cold-chain with your certificate of analysis.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════
+     LEGAL WARNINGS
+═══════════════════════════════════════════════ -->
+<section class="legal-section" id="legal">
+  <div style="max-width:1100px; margin:0 auto;">
+    <p class="section-label">Legal & Compliance</p>
+    <h2 class="section-title">Important Legal Notices</h2>
+    <p class="section-sub">
+      Please read the following carefully before purchasing any product from VM Peptides.
+    </p>
+
+    <div class="legal-grid">
+      <div class="legal-box warning">
+        <div class="legal-box-header">
+          <span class="legal-box-icon">⚠️</span>
+          <span class="legal-box-title">RESEARCH USE ONLY</span>
+        </div>
+        <p>All products offered by VM Peptides are intended solely for scientific research purposes. These products are not drugs, supplements, or food products. They are not intended for human or animal consumption, diagnostic use, or therapeutic application. Purchase and use are limited to qualified research professionals in appropriate laboratory settings.</p>
+      </div>
+
+      <div class="legal-box caution">
+        <div class="legal-box-header">
+          <span class="legal-box-icon">🚫</span>
+          <span class="legal-box-title">NOT FDA EVALUATED</span>
+        </div>
+        <p>None of the products sold by VM Peptides have been evaluated or approved by the U.S. Food and Drug Administration (FDA) or any equivalent regulatory authority. These products are not intended to diagnose, treat, cure, or prevent any disease, illness, or health condition. Do not use based on information found on this website as a substitute for professional medical advice.</p>
+      </div>
+
+      <div class="legal-box info">
+        <div class="legal-box-header">
+          <span class="legal-box-icon">⚖️</span>
+          <span class="legal-box-title">BUYER RESPONSIBILITY</span>
+        </div>
+        <p>It is the sole responsibility of the buyer to ensure that the purchase, possession, and use of these products comply with all applicable local, state, federal, and international laws and regulations. VM Peptides makes no representations regarding the legality of these products in your jurisdiction. By placing an order, you confirm you are a qualified researcher acting within applicable law.</p>
+      </div>
+
+      <div class="legal-box note">
+        <div class="legal-box-header">
+          <span class="legal-box-icon">🔞</span>
+          <span class="legal-box-title">AGE RESTRICTION</span>
+        </div>
+        <p>All products are restricted to individuals aged 18 years and older. By accessing this website and placing orders, you confirm that you are at least 18 years of age. VM Peptides reserves the right to request proof of age or professional credentials at any time and to refuse service at its sole discretion.</p>
+      </div>
+    </div>
+
+    <p style="margin-top:36px; font-size:0.78rem; color:var(--text-light); line-height:1.75; padding:20px 24px; background:var(--cream-dark); border-radius:10px; border-left:3px solid var(--teal-light);">
+      <strong>Limitation of Liability:</strong> VM Peptides, its owners, employees, and affiliates shall not be held liable for any direct, indirect, incidental, or consequential damages arising from the purchase, possession, or use of any product sold on this website. All sales are final. Products are sold as-is for research purposes only. By completing a purchase you acknowledge and accept these terms in full.
+    </p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════
+     FOOTER
+═══════════════════════════════════════════════ -->
+<footer>
+  <div style="max-width:1200px; margin:0 auto;">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="footer-logo-wrap">
+          <img src="brand-assets/VM-logo.png" alt="VM Peptides" />
+        </div>
+        <p>VM Peptides supplies research-grade peptides to qualified scientific professionals. All products for in-vitro research use only.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Products</h5>
+        <ul>
+          <li><a href="#">Tissue Research</a></li>
+          <li><a href="#">GH Secretagogues</a></li>
+          <li><a href="#">Nootropic Research</a></li>
+          <li><a href="#">Epigenetic Research</a></li>
+          <li><a href="#">All Products</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Company</h5>
+        <ul>
+          <li><a href="#">About VM Peptides</a></li>
+          <li><a href="#">Quality Assurance</a></li>
+          <li><a href="#">Shipping Policy</a></li>
+          <li><a href="#">Returns</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Legal</h5>
+        <ul>
+          <li><a href="#">Terms of Service</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Research Use Policy</a></li>
+          <li><a href="#">Cookie Policy</a></li>
+          <li><a href="#">Sitemap</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p class="footer-legal-text">
+        <strong style="color:rgba(255,255,255,0.35);">Legal Disclaimer:</strong> All products are sold for research purposes only. Not for human consumption.
+        Not evaluated by the FDA. Not intended to diagnose, treat, cure, or prevent any disease.
+        Must be 18+ to purchase. VM Peptides is not responsible for misuse of any product.
+        Buyers assume all legal and safety responsibility.
+      </p>
+      <p class="footer-copy">© 2026 VM Peptides. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+
+<script>
+  function enterSite() {
+    document.getElementById('age-gate').classList.add('hidden');
+    sessionStorage.setItem('ageVerified', 'true');
+  }
+
+  function denySite() {
+    document.getElementById('age-gate').classList.add('hidden');
+    document.getElementById('deny-screen').classList.add('show');
+  }
+
+  // Skip gate if already verified this session
+  if (sessionStorage.getItem('ageVerified')) {
+    document.getElementById('age-gate').classList.add('hidden');
+  }
+</script>
+</body>
+</html>
